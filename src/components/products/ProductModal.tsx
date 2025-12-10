@@ -49,6 +49,15 @@ export default function ProductModal({
       name: "product.options",
     });
 
+  const {
+    fields: pricingFields,
+    append: addProductPricing,
+    remove: removeProductPricing
+  } = useFieldArray({
+    control,
+    name: "product.pricings",
+  });
+
   const handleAddValue = (optionIndex: number) => {
     const currentOptions = watch("product.options");
     const updatedOptions = [...currentOptions];
@@ -115,8 +124,30 @@ export default function ProductModal({
     setValue('meta_tax', productForm?.meta_tax);
     setValue('image_urls', setImages(productForm?.image_urls?.map((item: any) => { return item })));
     setValue('is_featured', productForm?.is_featured);
-    console.log(productForm)
-    // ✅ SET OPTIONS cleanly
+    // ⭐ SET SEPARATE PRICINGS
+    if (productForm?.pricings?.length) {
+      setValue(
+        "product.pricings",
+        productForm.pricings.map((p: any) => ({
+          id: p?.id || "",
+          starting_range: Number(p.starting_range),
+          ending: Number(p.ending),
+          price: Number(p.price),
+          created_by: "admin",
+        }))
+      );
+    } else {
+      // ⭐ If no pricing → default one pricing row
+      setValue("product.pricings", [
+        {
+          starting_range: "",
+          ending: "",
+          price: "",
+          created_by: "admin",
+        },
+      ]);
+    }
+
     if (productForm?.options?.length) {
       const formattedOptions = productForm.options.map((option: any) => ({
         option: option?.option || '',
@@ -143,23 +174,7 @@ export default function ProductModal({
   }, [productForm]);
 
   const onSubmit = async (data: any) => {
-    // setIsLoading(true);
     setErrorMessage('');
-    // const formattedOptions = data?.product?.options?.map((option: any) => ({
-    //   option: option?.option || "",
-    //   // id: option?.id || '',
-    //   values: option?.values?.map((value: any) => ({
-    //     // id: value?.id || '',
-    //     value: value?.value || "",
-    //     pricings: value?.pricings?.map((pricing: any) => ({
-    //       // id: pricing?.id || '',
-    //       price: pricing?.price || "",
-    //       starting_range: pricing?.starting_range || "",
-    //       ending: pricing?.ending || "",
-    //     })) || [],
-    //   })) || [],
-    // })) || [];
-
     const formattedOptions = data?.product?.options?.map((option: any) => ({
       ...(productForm && { id: option?.id }),  // 👈 only in edit
       option: option?.option || "",
@@ -206,9 +221,14 @@ export default function ProductModal({
         meta_tax: data?.meta_tax,
         is_featured: !!data?.is_featured,
         ...(productForm ? { updated_by: "vendor" } : { created_by: "vendor" }),
-
         status: true,
-
+        pricings: data.product.pricings?.map((p: any) => ({
+          ...(productForm && { id: p?.id }),
+          starting_range: Number(p.starting_range),
+          ending: Number(p.ending),
+          price: Number(p.price),
+          created_by: "admin"
+        })) || [],
         options: formattedOptions,
       },
       image_urls: images?.map((item: any) =>
@@ -421,8 +441,68 @@ export default function ProductModal({
             </div>
             {/* <Button type="submit">Submit</Button> */}
 
+            <div className="rounded-md">
+              <h2 className="font-bold text-lg mb-2">Product Pricings</h2>
+              {pricingFields.map((item, index) => (
+                <div key={item.id} className="grid grid-cols-12 gap-2 mb-5  rounded">
+                  <div className="col-span-4">
+                    <Input
+                      label="Starting Range"
+                      type="number"
+                      {...register(`product.pricings.${index}.starting_range`)}
+                    />
+                  </div>
+                  <div className="col-span-4">
+                    <Input
+                      label="Ending Range"
+                      type="number"
+                      {...register(`product.pricings.${index}.ending`)}
+                    />
+                  </div>
+
+                  <div className="col-span-3">
+                    <Input
+                      label="Price"
+                      type="number"
+                      {...register(`product.pricings.${index}.price`)}
+                    />
+                  </div>
+
+                  <div className="col-span-1 flex justify-center items-center">
+                    <button
+                      type="button"
+                      onClick={() => removeProductPricing(index)}
+                      className="text-red-500 font-bold text-xl"
+                    >
+                      <X />
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex justify-between items-center mb-2">
+
+                <Button
+                  type="button"
+                  onClick={() =>
+                    addProductPricing({
+                      starting_range: "",
+                      ending: "",
+                      price: "",
+                      created_by: "admin"
+                    })
+                  }
+                  className='flex gap-2'
+                >
+                  + Add Pricing
+                </Button>
+              </div>
+            </div>
+
+
             {/* OPTIONS SECTION */}
             <div className="space-y-4">
+              <h2 className="font-bold text-lg mb-2">Product Options</h2>
               {optionFields.map((option, optionIndex) => (
                 <div
                   key={option.id}
@@ -574,284 +654,3 @@ export default function ProductModal({
     </div>
   );
 }
-
-// import { useForm, useFieldArray, Controller } from "react-hook-form";
-// import { useState } from "react";
-// import { X, Plus } from "lucide-react";
-
-// export default function ProductForm() {
-//   const {
-//     control,
-//     register,
-//     handleSubmit,
-//     reset,
-//     watch,
-//     setValue,
-//   } = useForm({
-//     defaultValues: {
-//       product: {
-//         vendor: 1,
-//         name: "",
-//         brand_name: "",
-//         description: "",
-//         description_2: "",
-//         commission: 0,
-//         cost: 0,
-//         weight: "",
-//         length: "",
-//         breadth: "",
-//         height: "",
-//         sku: "",
-//         price: 0,
-//         discount: 0,
-//         stock_quantity: 0,
-//         keywords: [],
-//         meta_tax: [],
-//         is_featured: false,
-//         category: "",
-//         created_by: "admin_user",
-//         status: true,
-//         options: [],
-//       },
-//       image_urls: [],
-//     },
-//   });
-
-//   const { fields: optionFields, append: addOption, remove: removeOption } =
-//     useFieldArray({
-//       control,
-//       name: "product.options",
-//     });
-
-//   const handleAddValue = (optionIndex: number) => {
-//     const currentOptions = watch("product.options");
-//     const updatedOptions = [...currentOptions];
-//     updatedOptions[optionIndex].values = [
-//       ...(updatedOptions[optionIndex].values || []),
-//       { value: "", pricings: [] },
-//     ];
-//     setValue("product.options", updatedOptions);
-//   };
-
-//   const handleAddPricing = (optionIndex: number, valueIndex: number) => {
-//     const currentOptions = watch("product.options");
-//     const updatedOptions = [...currentOptions];
-//     updatedOptions[optionIndex].values[valueIndex].pricings = [
-//       ...(updatedOptions[optionIndex].values[valueIndex].pricings || []),
-//       { price: "", starting_range: "", ending: "" },
-//     ];
-//     setValue("product.options", updatedOptions);
-//   };
-
-//   const onSubmit = (data: any) => {
-//     console.log("Final Payload:", JSON.stringify(data, null, 2));
-//   };
-
-//   return (
-//     <form
-//       onSubmit={handleSubmit(onSubmit)}
-//       className="p-6 bg-white rounded-xl shadow-lg space-y-6"
-//     >
-//       <h2 className="text-xl font-semibold">Create Product</h2>
-
-//       {/* BASIC FIELDS */}
-//       <div className="grid grid-cols-2 gap-4">
-//         <input
-//           {...register("product.name")}
-//           placeholder="Product Name"
-//           className="border p-2 rounded"
-//         />
-//         <input
-//           {...register("product.brand_name")}
-//           placeholder="Brand Name"
-//           className="border p-2 rounded"
-//         />
-//         <input
-//           {...register("product.price")}
-//           type="number"
-//           placeholder="Price"
-//           className="border p-2 rounded"
-//         />
-//         <input
-//           {...register("product.category")}
-//           placeholder="Category ID"
-//           type="number"
-//           className="border p-2 rounded"
-//         />
-//       </div>
-
-//       <textarea
-//         {...register("product.description")}
-//         placeholder="Description"
-//         className="border p-2 w-full rounded"
-//       />
-
-//       {/* IMAGE URLS */}
-//       <div>
-//         <label className="font-semibold">Image URLs</label>
-//         <Controller
-//           control={control}
-//           name="image_urls"
-//           render={({ field }) => (
-//             <div className="space-y-2">
-//               {field.value.map((url: string, idx: number) => (
-//                 <div key={idx} className="flex items-center gap-2">
-//                   <input
-//                     value={url}
-//                     onChange={(e) => {
-//                       const updated = [...field.value];
-//                       updated[idx] = e.target.value;
-//                       field.onChange(updated);
-//                     }}
-//                     placeholder="Enter image URL"
-//                     className="border p-2 flex-1 rounded"
-//                   />
-//                   <button
-//                     type="button"
-//                     onClick={() => {
-//                       const updated = field.value.filter((_, i) => i !== idx);
-//                       field.onChange(updated);
-//                     }}
-//                     className="text-red-500"
-//                   >
-//                     <X size={18} />
-//                   </button>
-//                 </div>
-//               ))}
-//               <button
-//                 type="button"
-//                 onClick={() => field.onChange([...field.value, ""])}
-//                 className="text-sm bg-green-500 text-white px-3 py-1 rounded"
-//               >
-//                 + Add Image
-//               </button>
-//             </div>
-//           )}
-//         />
-//       </div>
-
-//       {/* OPTIONS SECTION */}
-//       <div className="space-y-4">
-//         <h3 className="font-semibold text-lg">Options</h3>
-//         {optionFields.map((option, optionIndex) => (
-//           <div
-//             key={option.id}
-//             className="border rounded-lg p-4 bg-gray-50 space-y-3"
-//           >
-//             <div className="flex justify-between items-center">
-//               <input
-//                 {...register(`product.options.${optionIndex}.option`)}
-//                 placeholder="Option name (e.g., Size, Color)"
-//                 className="border p-2 rounded flex-1"
-//               />
-//               <button
-//                 type="button"
-//                 onClick={() => removeOption(optionIndex)}
-//                 className="ml-2 text-red-500"
-//               >
-//                 <X size={18} />
-//               </button>
-//             </div>
-
-//             {/* VALUES */}
-//             {watch(`product.options.${optionIndex}.values`)?.map(
-//               (value: any, valueIndex: number) => (
-//                 <div
-//                   key={valueIndex}
-//                   className="border rounded p-3 bg-white space-y-3"
-//                 >
-//                   <div className="flex justify-between items-center">
-//                     <input
-//                       {...register(
-//                         `product.options.${optionIndex}.values.${valueIndex}.value`
-//                       )}
-//                       placeholder="Value (e.g., Small, Red)"
-//                       className="border p-2 rounded flex-1"
-//                     />
-//                     <button
-//                       type="button"
-//                       onClick={() => {
-//                         const currentOptions = watch("product.options");
-//                         const updated = [...currentOptions];
-//                         updated[optionIndex].values.splice(valueIndex, 1);
-//                         setValue("product.options", updated);
-//                       }}
-//                       className="ml-2 text-red-500"
-//                     >
-//                       <X size={18} />
-//                     </button>
-//                   </div>
-
-//                   {/* PRICINGS */}
-//                   {value?.pricings?.map((pricing: any, pricingIndex: number) => (
-//                     <div
-//                       key={pricingIndex}
-//                       className="grid grid-cols-3 gap-2 bg-gray-100 p-2 rounded"
-//                     >
-//                       <input
-//                         {...register(
-//                           `product.options.${optionIndex}.values.${valueIndex}.pricings.${pricingIndex}.price`
-//                         )}
-//                         placeholder="Price"
-//                         type="number"
-//                         className="border p-1 rounded"
-//                       />
-//                       <input
-//                         {...register(
-//                           `product.options.${optionIndex}.values.${valueIndex}.pricings.${pricingIndex}.starting_range`
-//                         )}
-//                         placeholder="Start Range"
-//                         type="number"
-//                         className="border p-1 rounded"
-//                       />
-//                       <input
-//                         {...register(
-//                           `product.options.${optionIndex}.values.${valueIndex}.pricings.${pricingIndex}.ending`
-//                         )}
-//                         placeholder="End Range"
-//                         type="number"
-//                         className="border p-1 rounded"
-//                       />
-//                     </div>
-//                   ))}
-
-//                   <button
-//                     type="button"
-//                     onClick={() => handleAddPricing(optionIndex, valueIndex)}
-//                     className="text-sm text-green-600"
-//                   >
-//                     + Add Pricing
-//                   </button>
-//                 </div>
-//               )
-//             )}
-
-//             <button
-//               type="button"
-//               onClick={() => handleAddValue(optionIndex)}
-//               className="text-sm text-blue-600"
-//             >
-//               + Add Value
-//             </button>
-//           </div>
-//         ))}
-
-//         <button
-//           type="button"
-//           onClick={() => addOption({ option: "", values: [] })}
-//           className="text-sm bg-blue-500 text-white px-3 py-1 rounded"
-//         >
-//           + Add Option
-//         </button>
-//       </div>
-
-//       <button
-//         type="submit"
-//         className="bg-green-600 text-white px-6 py-2 rounded font-semibold"
-//       >
-//         Submit Product
-//       </button>
-//     </form>
-//   );
-// }
-
