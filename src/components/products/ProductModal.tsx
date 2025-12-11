@@ -115,6 +115,9 @@ export default function ProductModal({
     setValue('length', productForm?.length);
     setValue('breadth', productForm?.breadth);
     setValue('height', productForm?.height);
+    setValue('is_custom_image_required', productForm?.is_custom_image_required);
+    setValue('min_purchase_quantity', productForm?.min_purchase_quantity);
+    setValue('max_purchase_quantity', productForm?.max_purchase_quantity);
 
     setValue('sku', productForm?.sku);
     setValue('stock_quantity', productForm?.stock_quantity);
@@ -211,6 +214,10 @@ export default function ProductModal({
         height: data?.height,
         discount: data?.discount,
         stock_quantity: data?.stock_quantity,
+        is_custom_image_required: data?.is_custom_image_required,
+        min_purchase_quantity: data?.min_purchase_quantity,
+        max_purchase_quantity: data?.max_purchase_quantity,
+
         ...(productForm
           ? {}
           : {
@@ -375,6 +382,18 @@ export default function ProductModal({
                   className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
                 />
               </div>
+              <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 flex items-center gap-2 py-2'>
+                <label className="block text-sm font-bold  mb-1">
+                  Custom Image
+                </label>
+                <Input
+                  type="checkbox"
+                  id="is_custom_image_required"
+                  {...register("is_custom_image_required")}
+                  className="h-10 w-10 text-indigo-600 border-gray-300 rounded"
+                />
+              </div>
+
               {/* <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
                 <Input type="number" label="Stock Quantity" {...register('stock_quantity')} />
               </div> */}
@@ -438,8 +457,18 @@ export default function ProductModal({
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
+
+               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 mt-2'>
+                <Input label="Minimum Purchase Quantity" {...register('min_purchase_quantity')} />
+              </div>
+              <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 mt-2'>
+                <Input label="Maximum Purchase Quantity" {...register('max_purchase_quantity')} />
+              </div>
             </div>
             {/* <Button type="submit">Submit</Button> */}
+
+             
+      
 
             <div className="rounded-md">
               <h2 className="font-bold text-lg mb-2">Product Pricings</h2>
