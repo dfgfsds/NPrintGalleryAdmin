@@ -1,7 +1,7 @@
 // components/Input.tsx
 import React from 'react';
 
-const Input = React.forwardRef(({ label, type = 'text',disabled, readOnly, error, ...props }: any, ref) => {
+const Input = React.forwardRef(({ label, type = 'text',disabled,step, readOnly, error, ...props }: any, ref) => {
   return (
     <div>
       <label className="block text-sm font-bold  mb-1">{label}</label>
@@ -9,6 +9,7 @@ const Input = React.forwardRef(({ label, type = 'text',disabled, readOnly, error
         ref={ref}
         type={type}
         {...props}
+        step={step}
         disabled={disabled}
         readOnly={readOnly}
         className={`w-full px-3 py-1 shadow-lg border ${

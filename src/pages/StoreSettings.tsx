@@ -351,7 +351,7 @@ export default function StoreSettings() {
                         className="p-1 text-gray-400 hover:text-gray-500"
                         title="Edit address"
                       >
-                        {/* <Pencil className="h-5 w-5" /> */}
+                        <Pencil className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => { setDeleteModal(!deleteModal), setDeleteId(address?.id) }}
@@ -880,7 +880,9 @@ export default function StoreSettings() {
       <AddressForm
         openModal={openModal}
         handleClose={() => setOpenMoadl(!openModal)}
-        editData={''}
+        editData={editData}
+        setEditData={setEditData}
+        pickupValue={vendorSiteDetails?.vendor_site_details?.delivery_partner}
       />
       <UpadteSiteDetails
         openModal={openSite}
