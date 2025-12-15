@@ -5,7 +5,7 @@ import Input from '../Input';
 import { ProductForm } from '../../types/product';
 import ImageUpload from './ImageUpload';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { getCategoriesWithSubcategoriesApi, postImageUploadApi, postProductVariantSizesCreateApi, updateProductVariantSizesapi } from '../../Api-Service/Apis';
+import { deleteProductPricingAPi, getCategoriesWithSubcategoriesApi, postImageUploadApi, postProductVariantSizesCreateApi, updateProductVariantSizesapi } from '../../Api-Service/Apis';
 import SizeSection from './SizeSection';
 import { InvalidateQueryFilters, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -57,6 +57,22 @@ export default function ProductModal({
     control,
     name: "product.pricings",
   });
+
+const handleRemovePricing = async (item:any,index: number) => {
+console.log(index)
+  // ✅ If pricing already saved in DB
+  if (item?.id) {
+    try {
+      await deleteProductPricingAPi(item.id);
+    } catch (error) {
+      console.error("Delete pricing failed", error);
+      return; // API fail aana UI remove pannadhu
+    }
+  }
+
+  // ✅ Finally remove from form
+  removeProductPricing(index);
+};
 
   const handleAddValue = (optionIndex: number) => {
     const currentOptions = watch("product.options");
@@ -302,11 +318,10 @@ export default function ProductModal({
                 <ImageUpload images={images} product={productForm} onChange={setImages} />
               </div>
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
-                <Input type="number" label="Price" {...register('price')} />
-
+                <Input type="number" step="0.01" label="Price" {...register('price')} />
               </div>
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
-                <Input type="number" label="MRP Price" {...register('discount')} />
+                <Input type="number" step="0.01" label="MRP Price" {...register('discount')} />
               </div>
 
               {/* Category Dropdown */}
@@ -353,7 +368,7 @@ export default function ProductModal({
                 <Input type="number" label="Commission" {...register('commission')} />
               </div>
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
-                <Input type="number" label="Cost" {...register('cost')} />
+                <Input type="number" step="0.01" label="Cost" {...register('cost')} />
               </div>
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
                 <Input label="Weight" {...register('weight')} />
@@ -458,7 +473,7 @@ export default function ProductModal({
                 />
               </div>
 
-               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 mt-2'>
+              <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 mt-2'>
                 <Input label="Minimum Purchase Quantity" {...register('min_purchase_quantity')} />
               </div>
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 mt-2'>
@@ -467,8 +482,8 @@ export default function ProductModal({
             </div>
             {/* <Button type="submit">Submit</Button> */}
 
-             
-      
+
+
 
             <div className="rounded-md">
               <h2 className="font-bold text-lg mb-2">Product Pricings</h2>
@@ -492,6 +507,7 @@ export default function ProductModal({
                   <div className="col-span-3">
                     <Input
                       label="Price"
+                      step="0.01"
                       type="number"
                       {...register(`product.pricings.${index}.price`)}
                     />
@@ -501,6 +517,7 @@ export default function ProductModal({
                     <button
                       type="button"
                       onClick={() => removeProductPricing(index)}
+                      // onClick={() => handleRemovePricing(item,index)}
                       className="text-red-500 font-bold text-xl"
                     >
                       <X />
@@ -612,6 +629,8 @@ export default function ProductModal({
                                 <Input
                                   required
                                   label="Price"
+                                  type='number'
+                                  step="0.01"
                                   {...register(
                                     `product.options.${optionIndex}.values.${valueIndex}.pricings.${pricingIndex}.price`
                                   )}
@@ -621,6 +640,7 @@ export default function ProductModal({
                                 <Input
                                   required
                                   label="Quantity starting range"
+                                  type='number'
                                   {...register(
                                     `product.options.${optionIndex}.values.${valueIndex}.pricings.${pricingIndex}.starting_range`
                                   )}
@@ -630,6 +650,7 @@ export default function ProductModal({
                                 <Input
                                   required
                                   label="Quantity ending range "
+                                  type='number'
                                   {...register(
                                     `product.options.${optionIndex}.values.${valueIndex}.pricings.${pricingIndex}.ending`
                                   )}
