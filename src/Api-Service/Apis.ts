@@ -375,6 +375,14 @@ export const updateVendorOtherDetailsApi = async (query: any,payload:any) => {
   );
 };
 
+// DELETE PRODUCT PRICING APIS
+export const deleteProductPricingAPi = async (query: any) => {
+  const formattedQuery = query?.endsWith('/') ? query : `${query}`;
+  return axios.delete(
+      `${ApiUrls?.productPricings}${formattedQuery}`
+  );
+}
+
 
 
 

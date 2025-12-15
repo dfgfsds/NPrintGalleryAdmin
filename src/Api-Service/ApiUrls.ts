@@ -43,6 +43,7 @@ const vendorOtherDetails = `${baseUrl}/vendor-other-details/`;
 const productWithOptionsValuePricing = `${baseUrl}/product-with-options-value-pricing/`;
 const allProductOptions = `${baseUrl}/product-with-options-value-pricing/`;
 const productImage=`${baseUrl}/product/`;
+const productPricings =`${baseUrl}/product-with-image-pricing/`;
 
 export default {
     multiVendor,
@@ -82,4 +83,5 @@ export default {
     productWithOptionsValuePricing,
     allProductOptions,
     productImage,
+    productPricings,
 };

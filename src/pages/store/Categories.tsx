@@ -47,7 +47,8 @@ export default function Categories() {
       image: null,
       slug_name: "",
       created_by: "",
-      is_featured:false
+      is_featured: false,
+      starting_from: 0,
     },
   });
 
@@ -89,7 +90,8 @@ export default function Categories() {
         created_by: 'vendor',
         vendor: id,
         slug_name: data?.slug_name,
-        is_featured:data?.is_featured
+        is_featured: data?.is_featured,
+        starting_from: data?.starting_from,
       };
 
       if (selectedCategory) {
@@ -101,7 +103,8 @@ export default function Categories() {
           name: data?.name,
           image: images ? images[0]?.url : '',
           slug_name: data?.slug_name,
-          is_featured:data?.is_featured
+          is_featured: data?.is_featured,
+          starting_from: data?.starting_from,
         };
 
         const updateApi = await updateCategoriesApi(`${selectedCategory?.id}/`, editPayload);
@@ -151,7 +154,8 @@ export default function Categories() {
       setValue('depth', selectedCategory?.depth)
       setImages(selectedCategory?.image)
       setValue('slug_name', selectedCategory?.slug_name)
-      setValue('is_featured',selectedCategory?.is_featured)
+      setValue('is_featured', selectedCategory?.is_featured)
+      setValue('starting_from', selectedCategory?.starting_from)
 
     }
   }, [selectedCategory])
@@ -230,7 +234,6 @@ export default function Categories() {
     const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
     saveAs(data, 'categories.xlsx');
   };
-  console.log(images)
 
   return (
     <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -379,20 +382,22 @@ export default function Categories() {
                 {/* Name */}
                 <Input label="Name" {...register("name", { required: true })} />
                 <Input label="Slug Name" required {...register("slug_name", { required: true })} />
+                <Input label="Starting From" type='number' required {...register("starting_from", { required: true })} />
+
                 {/* Depth */}
                 {/* <Input label="Depth" {...register("depth")} /> */}
                 {/* Description */}
-                 <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 flex items-center gap-2 py-2'>
-                                <label className="block text-sm font-bold  mb-1">
-                                  Featured Product
-                                </label>
-                                <Input
-                                  type="checkbox"
-                                  id="is_featured"
-                                  {...register("is_featured")}
-                                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
-                                />
-                              </div>
+                <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 flex items-center gap-2 py-2'>
+                  <label className="block text-sm font-bold  mb-1">
+                    Featured Product
+                  </label>
+                  <Input
+                    type="checkbox"
+                    id="is_featured"
+                    {...register("is_featured")}
+                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                  />
+                </div>
                 <div>
                   <label className="block text-sm font-bold  mb-1">Description</label>
                   <textarea

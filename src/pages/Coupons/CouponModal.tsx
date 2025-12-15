@@ -9,6 +9,7 @@ import { postCouponApi, updateCouponApi } from '../../Api-Service/authendication
 import { InvalidateQueryFilters, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { getAllProductVariantSizeApi, getCategoriesWithSubcategoriesApi, getUserApi } from '../../Api-Service/Apis';
+import { toast } from 'react-toastify';
 
 // ---------- Validation Schema ----------
 const CouponSchema = Yup.object().shape({
@@ -203,7 +204,6 @@ function CouponModal({ close, editData, setEditData }: any) {
     [userData?.data]
   );
 
-  // ---------- Sync editData into form when everything loads ----------
   useEffect(() => {
     if (!editData) return;
 
@@ -230,17 +230,13 @@ function CouponModal({ close, editData, setEditData }: any) {
     setValue('stackable', !!editData.stackable);
     setValue('user_specific', !!editData.user_specific);
 
-    // valid_days
     setValue(
       'valid_days',
       (editData.valid_days || []).map((d: any) => ({ label: d, value: d }))
     );
 
-    // For multi selects that depend on options being loaded, map once options exist
-    // required_products, excluded_products, applicable_categories, excluded_categories, allowed_users
   }, [editData, setValue]);
 
-  // Map editData arrays into select options after option arrays load
   useEffect(() => {
     if (!editData) return;
 
@@ -312,33 +308,35 @@ function CouponModal({ close, editData, setEditData }: any) {
 
     try {
       if (editData) {
-        await updateCouponApi(`${editData?.id}`, payload);
-        setEditData('');
-        queryClient.invalidateQueries(['getCouponData'] as unknown as InvalidateQueryFilters);
-        close();
+        const updateApi = await updateCouponApi(`${editData?.id}`, payload);
+        if (updateApi) {
+          close();
+          toast.success('successfully created');
+          setEditData('');
+          queryClient.invalidateQueries(['getCouponData'] as unknown as InvalidateQueryFilters);
+        }
       } else {
-        await postCouponApi('', payload);
-        setEditData('');
-        queryClient.invalidateQueries(['getCouponData'] as unknown as InvalidateQueryFilters);
-        close();
+        const updateApi = await postCouponApi('', payload);
+        if (updateApi) {
+          close();
+          toast.success('successfully Edited');
+          setEditData('');
+          queryClient.invalidateQueries(['getCouponData'] as unknown as InvalidateQueryFilters);
+        }
       }
     } catch (error: any) {
-      // setApiError(error?.response?.data?.message || 'Failed to save coupon. Please try again.');
-          if (error?.response?.data?.errors) {
+      if (error?.response?.data?.errors) {
         const errObj = error.response.data.errors;
-
-        // first key + first message (0th index) mattum eduthukkurom
         const [key, value] = Object.entries(errObj)[0] || [];
         const firstMessage = Array.isArray(value) ? value[0] : value;
-
         setApiError(`${key}: ${firstMessage}`);
       } else {
-        setApiError('Something went wrong. Please try again.');
+        // setApiError('Something went wrong. Please try again.');
       }
     }
   };
 
-  // ---------- JSX ----------
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
       <div className="bg-white w-full max-w-2xl mx-auto rounded-lg p-6 shadow-lg overflow-y-auto max-h-[90vh]">
@@ -479,7 +477,7 @@ function CouponModal({ close, editData, setEditData }: any) {
                 <input
                   type="checkbox"
                   {...register(item.name)}
-                  // keep HTML checkbox behavior; react-hook-form will manage value
+                // keep HTML checkbox behavior; react-hook-form will manage value
                 />
                 <span>{item.label}</span>
               </label>
