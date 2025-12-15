@@ -58,21 +58,21 @@ export default function ProductModal({
     name: "product.pricings",
   });
 
-const handleRemovePricing = async (item:any,index: number) => {
-console.log(index)
-  // ✅ If pricing already saved in DB
-  if (item?.id) {
-    try {
-      await deleteProductPricingAPi(item.id);
-    } catch (error) {
-      console.error("Delete pricing failed", error);
-      return; // API fail aana UI remove pannadhu
+  const handleRemovePricing = async (item: any, index: number) => {
+    console.log(index)
+    // ✅ If pricing already saved in DB
+    if (item?.id) {
+      try {
+        await deleteProductPricingAPi(item.id);
+      } catch (error) {
+        console.error("Delete pricing failed", error);
+        return; // API fail aana UI remove pannadhu
+      }
     }
-  }
 
-  // ✅ Finally remove from form
-  removeProductPricing(index);
-};
+    // ✅ Finally remove from form
+    removeProductPricing(index);
+  };
 
   const handleAddValue = (optionIndex: number) => {
     const currentOptions = watch("product.options");
@@ -125,7 +125,7 @@ console.log(index)
     setValue('subcategory', productForm?.subcategory);
     setValue('brand_name', productForm?.brand_name);
     setValue('commission', productForm?.commission);
-
+    setValue('gst_percent', productForm?.gst_percent);
     setValue('cost', productForm?.cost);
     setValue('weight', productForm?.weight);
     setValue('length', productForm?.length);
@@ -233,7 +233,7 @@ console.log(index)
         is_custom_image_required: data?.is_custom_image_required,
         min_purchase_quantity: data?.min_purchase_quantity,
         max_purchase_quantity: data?.max_purchase_quantity,
-
+        gst_percent: data?.gst_percent,
         ...(productForm
           ? {}
           : {
@@ -322,6 +322,9 @@ console.log(index)
               </div>
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
                 <Input type="number" step="0.01" label="MRP Price" {...register('discount')} />
+              </div>
+              <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
+                <Input type="number" step="0.01" label="GST Percent" {...register('gst_percent')} />
               </div>
 
               {/* Category Dropdown */}

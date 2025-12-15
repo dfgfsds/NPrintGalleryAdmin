@@ -91,7 +91,7 @@ export default function Categories() {
         vendor: id,
         slug_name: data?.slug_name,
         is_featured: data?.is_featured,
-        starting_from: data?.starting_from,
+        starting_price: data?.starting_from,
       };
 
       if (selectedCategory) {
@@ -104,7 +104,7 @@ export default function Categories() {
           image: images ? images[0]?.url : '',
           slug_name: data?.slug_name,
           is_featured: data?.is_featured,
-          starting_from: data?.starting_from,
+          starting_price: data?.starting_from,
         };
 
         const updateApi = await updateCategoriesApi(`${selectedCategory?.id}/`, editPayload);
@@ -155,7 +155,7 @@ export default function Categories() {
       setImages(selectedCategory?.image)
       setValue('slug_name', selectedCategory?.slug_name)
       setValue('is_featured', selectedCategory?.is_featured)
-      setValue('starting_from', selectedCategory?.starting_from)
+      setValue('starting_from', selectedCategory?.starting_price)
 
     }
   }, [selectedCategory])
@@ -382,14 +382,14 @@ export default function Categories() {
                 {/* Name */}
                 <Input label="Name" {...register("name", { required: true })} />
                 <Input label="Slug Name" required {...register("slug_name", { required: true })} />
-                <Input label="Starting From" type='number' required {...register("starting_from", { required: true })} />
+                <Input label="Starting From"  step="0.01" type='number' required {...register("starting_from", { required: true })} />
 
                 {/* Depth */}
                 {/* <Input label="Depth" {...register("depth")} /> */}
                 {/* Description */}
                 <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 flex items-center gap-2 py-2'>
                   <label className="block text-sm font-bold  mb-1">
-                    Featured Product
+                    Featured Category
                   </label>
                   <Input
                     type="checkbox"
