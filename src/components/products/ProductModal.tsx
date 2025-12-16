@@ -408,6 +408,11 @@ export default function ProductModal({
     }
   };
 
+  const handleClose = () => {
+    queryClient.invalidateQueries(['getProductData'] as InvalidateQueryFilters);
+    onClose();
+  }
+
   return (
     <div className="fixed inset-0 z-10 overflow-y-auto">
       <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
@@ -415,7 +420,7 @@ export default function ProductModal({
           <div className="absolute right-0 top-0 pr-4 pt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="rounded-md bg-white text-gray-400 hover:text-gray-500"
             >
               <X className="h-6 w-6" />
