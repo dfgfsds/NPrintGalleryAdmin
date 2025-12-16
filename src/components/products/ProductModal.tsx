@@ -5,7 +5,7 @@ import Input from '../Input';
 import { ProductForm } from '../../types/product';
 import ImageUpload from './ImageUpload';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { deleteProductPricingAPi, getCategoriesWithSubcategoriesApi, postImageUploadApi, postProductVariantSizesCreateApi, updateProductVariantSizesapi } from '../../Api-Service/Apis';
+import { deleteOptionApi, deleteOptionValueApi, deleteProductOptionPricingAPi, deleteProductPricingAPi, getCategoriesWithSubcategoriesApi, postImageUploadApi, postProductVariantSizesCreateApi, updateProductVariantSizesapi } from '../../Api-Service/Apis';
 import SizeSection from './SizeSection';
 import { InvalidateQueryFilters, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
@@ -56,22 +56,108 @@ export default function ProductModal({
   } = useFieldArray({
     control,
     name: "product.pricings",
+    keyName: "field_id",
   });
 
+  // DELETE PRICING
   const handleRemovePricing = async (item: any, index: number) => {
-    console.log(index)
-    // ✅ If pricing already saved in DB
-    if (item?.id) {
+    if (item?.pricing_id) {
       try {
-        await deleteProductPricingAPi(item.id);
+        const updateApi = await deleteProductPricingAPi(item.pricing_id);
+        if (updateApi) {
+          removeProductPricing(index);
+        }
       } catch (error) {
-        console.error("Delete pricing failed", error);
-        return; // API fail aana UI remove pannadhu
+        toast.error("Delete pricing failed")
+        // console.error("Delete pricing failed", error);
+        return;
       }
+    } else {
+      removeProductPricing(index);
     }
+  };
 
-    // ✅ Finally remove from form
-    removeProductPricing(index);
+  const handleDeleteOption = async (option: any, optionIndex: number) => {
+    const currentOptions = watch("product.options");
+
+    if (option?.option_id) {
+      try {
+        const updateApi = await deleteOptionApi(`${option.option_id}`);
+        if (updateApi) {
+          const updated = [...currentOptions];
+          updated.splice(optionIndex, 1);
+          setValue("product.options", updated);
+        }
+      } catch {
+        toast.error("Option delete failed");
+        return;
+      }
+    } else {
+      const updated = [...currentOptions];
+      updated.splice(optionIndex, 1);
+      setValue("product.options", updated);
+    }
+  };
+
+
+
+  const handleDeleteValue = async (
+    optionIndex: number,
+    valueIndex: number
+  ) => {
+    const currentOptions = watch("product.options");
+    const value = currentOptions[optionIndex].values[valueIndex];
+
+    if (value?.value_id) {
+      try {
+        const updateApi = await deleteOptionValueApi(value.value_id);
+        if (updateApi) {
+          const updated = [...currentOptions];
+          updated[optionIndex].values.splice(valueIndex, 1);
+          setValue("product.options", updated);
+        }
+      } catch {
+        toast.error("Option value delete failed");
+        return;
+      }
+    } else {
+      const updated = [...currentOptions];
+      updated[optionIndex].values.splice(valueIndex, 1);
+      setValue("product.options", updated);
+    }
+  };
+
+  const handleDeleteOptionPrice = async (
+    pricing: any,
+    pricingIndex: number,
+    optionIndex: number,
+    valueIndex: number
+  ) => {
+    const currentOptions = watch("product.options");
+
+    if (pricing?.pricing_id) {
+      try {
+        const updateApi = await deleteProductOptionPricingAPi(pricing.pricing_id);
+        if (updateApi) {
+          const updated = [...currentOptions];
+          updated[optionIndex]
+            .values[valueIndex]
+            .pricings.splice(pricingIndex, 1);
+
+          setValue("product.options", updated);
+        }
+      } catch {
+        toast.error("Pricing delete failed");
+        return;
+      }
+    } else {
+      const updated = [...currentOptions];
+      updated[optionIndex]
+        .values[valueIndex]
+        .pricings.splice(pricingIndex, 1);
+
+      setValue("product.options", updated);
+    }
   };
 
   const handleAddValue = (optionIndex: number) => {
@@ -99,17 +185,33 @@ export default function ProductModal({
     queryKey: ["getCategoriesWithSubcategoriesData", id],
     queryFn: () => getCategoriesWithSubcategoriesApi(`vendor/${id}/`),
   })
+  // const handleCategoryChange = (selectedOption: any) => {
+  //   setValue('category', selectedOption?.value);
+  //   setValue('subcategory', null);
+  //   const selectedCat = data?.data?.find((cat: any) => cat?.id === selectedOption?.value);
+  //   setSubcategoryOptions(
+  //     selectedCat?.subcategories?.map((sub: any) => ({
+  //       value: sub?.id,
+  //       label: sub?.name
+  //     })) || []
+  //   );
+  // };
+
   const handleCategoryChange = (selectedOption: any) => {
-    setValue('category', selectedOption?.value);
-    setValue('subcategory', null);
-    const selectedCat = data?.data?.find((cat: any) => cat?.id === selectedOption?.value);
+    const categoryId = selectedOption?.value;
+    setValue("category", categoryId);
+    setValue("subcategory", null);
+    const selectedCat = data?.data?.find(
+      (cat: any) => cat.id === categoryId
+    );
     setSubcategoryOptions(
       selectedCat?.subcategories?.map((sub: any) => ({
-        value: sub?.id,
-        label: sub?.name
+        value: sub.id,
+        label: sub.name,
       })) || []
     );
   };
+
 
   const categoryOptions = data?.data?.map((cat: any) => ({
     value: cat?.id,
@@ -117,10 +219,30 @@ export default function ProductModal({
   })) || [];
 
   useEffect(() => {
+    if (!productForm || !data?.data?.length) return;
+    setValue("category", productForm.category);
+    const selectedCat = data.data.find(
+      (cat: any) => cat.id === productForm.category
+    );
+    const subs =
+      selectedCat?.subcategories?.map((sub: any) => ({
+        value: sub.id,
+        label: sub.name,
+      })) || [];
+
+    setSubcategoryOptions(subs);
+    setValue("subcategory", productForm.subcategory);
+
+  }, [productForm, data]);
+
+
+  useEffect(() => {
     setValue('name', productForm?.name);
     setValue('slug_name', productForm?.slug_name);
     setValue('price', productForm?.price);
     setValue('discount', productForm?.discount);
+    // setValue('category', productForm?.category);
+    // setValue('subcategory', productForm?.subcategory);
     setValue('category', productForm?.category);
     setValue('subcategory', productForm?.subcategory);
     setValue('brand_name', productForm?.brand_name);
@@ -147,8 +269,9 @@ export default function ProductModal({
     if (productForm?.pricings?.length) {
       setValue(
         "product.pricings",
-        productForm.pricings.map((p: any) => ({
-          id: p?.id || "",
+        productForm?.pricings?.map((p: any) => ({
+          pricing_id: p.id,
+          // id: p?.id || "",
           starting_range: Number(p.starting_range),
           ending: Number(p.ending),
           price: Number(p.price),
@@ -156,28 +279,19 @@ export default function ProductModal({
         }))
       );
     } else {
-      // ⭐ If no pricing → default one pricing row
-      setValue("product.pricings", [
-        {
-          starting_range: "",
-          ending: "",
-          price: "",
-          created_by: "admin",
-        },
-      ]);
     }
 
     if (productForm?.options?.length) {
       const formattedOptions = productForm.options.map((option: any) => ({
         option: option?.option || '',
-        id: option?.id || '',
+        option_id: option.id,
         values:
           option?.values?.map((value: any) => ({
-            id: value?.id || '',
+            value_id: value.id,
             value: value?.value || '',
             pricings:
               value?.pricings?.map((pricing: any) => ({
-                id: pricing?.id || '',
+                pricing_id: pricing.id,
                 price: pricing?.price || '',
                 starting_range: pricing?.starting_range || '',
                 ending: pricing?.ending || '',
@@ -234,6 +348,8 @@ export default function ProductModal({
         min_purchase_quantity: data?.min_purchase_quantity,
         max_purchase_quantity: data?.max_purchase_quantity,
         gst_percent: data?.gst_percent,
+        category: data?.category,
+        subcategory: data?.subcategory,
         ...(productForm
           ? {}
           : {
@@ -348,7 +464,7 @@ export default function ProductModal({
               {/* Subcategory Dropdown */}
               <div className="col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6 py-1">
                 <label className="block text-sm font-bold  mb-1">subcategory</label>
-                <Controller
+                {/* <Controller
                   name="subcategory"
                   control={control}
                   render={({ field }) => (
@@ -361,7 +477,29 @@ export default function ProductModal({
                       onChange={(selected: any) => setValue('subcategory', selected?.value)}
                     />
                   )}
+                /> */}
+
+                <Controller
+                  name="subcategory"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={subcategoryOptions}
+                      placeholder="Select Subcategory"
+                      isDisabled={!subcategoryOptions.length}
+                      value={
+                        subcategoryOptions.find(
+                          (opt: any) => opt.value === field.value
+                        ) || null
+                      }
+                      onChange={(selected: any) =>
+                        setValue("subcategory", selected?.value)
+                      }
+                    />
+                  )}
                 />
+
               </div>
               {/* </div> */}
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
@@ -490,8 +628,8 @@ export default function ProductModal({
 
             <div className="rounded-md">
               <h2 className="font-bold text-lg mb-2">Product Pricings</h2>
-              {pricingFields.map((item, index) => (
-                <div key={item.id} className="grid grid-cols-12 gap-2 mb-5  rounded">
+              {pricingFields.map((item: any, index: number) => (
+                <div key={item.pricing_id} className="grid grid-cols-12 gap-2 mb-5  rounded">
                   <div className="col-span-4">
                     <Input
                       label="Starting Range"
@@ -519,8 +657,7 @@ export default function ProductModal({
                   <div className="col-span-1 flex justify-center items-center">
                     <button
                       type="button"
-                      onClick={() => removeProductPricing(index)}
-                      // onClick={() => handleRemovePricing(item,index)}
+                      onClick={() => handleRemovePricing(item, index)}
                       className="text-red-500 font-bold text-xl"
                     >
                       <X />
@@ -552,7 +689,7 @@ export default function ProductModal({
             {/* OPTIONS SECTION */}
             <div className="space-y-4">
               <h2 className="font-bold text-lg mb-2">Product Options</h2>
-              {optionFields.map((option, optionIndex) => (
+              {optionFields?.map((option, optionIndex) => (
                 <div
                   key={option.id}
                   className="border rounded-lg p-4  space-y-3"
@@ -564,13 +701,21 @@ export default function ProductModal({
                       label="Product Options Title"
                       {...register(`product.options.${optionIndex}.option`)}
                     />
-                    <button
+                    {/* <button
                       type="button"
                       onClick={() => removeOption(optionIndex)}
                       className="ml-2 text-red-500"
                     >
                       <X size={18} />
+                    </button> */}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteOption(option, optionIndex)}
+                      className="ml-2 text-red-500"
+                    >
+                      <X size={18} />
                     </button>
+
                   </div>
 
                   {/* VALUES */}
@@ -589,7 +734,7 @@ export default function ProductModal({
                               `product.options.${optionIndex}.values.${valueIndex}.value`
                             )}
                           />
-                          <button
+                          {/* <button
                             type="button"
                             onClick={() => {
                               const currentOptions = watch("product.options");
@@ -600,7 +745,15 @@ export default function ProductModal({
                             className="ml-2 text-red-500"
                           >
                             <X size={18} />
+                          </button> */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteValue(optionIndex, valueIndex)}
+                            className="ml-2 text-red-500"
+                          >
+                            <X size={18} />
                           </button>
+
                         </div>
 
                         {/* PRICINGS SECTION */}
@@ -615,16 +768,20 @@ export default function ProductModal({
                               </h4>
                               <button
                                 type="button"
-                                onClick={() => {
-                                  const currentOptions = watch("product.options");
-                                  const updated = [...currentOptions];
-                                  updated[optionIndex].values[valueIndex].pricings.splice(pricingIndex, 1);
-                                  setValue("product.options", updated);
-                                }}
+                                onClick={() =>
+                                  handleDeleteOptionPrice(
+                                    pricing,
+                                    pricingIndex,
+                                    optionIndex,
+                                    valueIndex
+                                  )
+                                }
                                 className="text-red-500 hover:text-red-600 text-sm flex items-center gap-1"
                               >
-                                <X size={14} /> Remove
+                                <X size={14} />
+                                Remove
                               </button>
+
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
