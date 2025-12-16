@@ -309,15 +309,15 @@ export default function ProductModal({
   const onSubmit = async (data: any) => {
     setErrorMessage('');
     const formattedOptions = data?.product?.options?.map((option: any) => ({
-      ...(productForm && { id: option?.id }),  // 👈 only in edit
+      ...(productForm && { id: option?.option_id }),  // 👈 only in edit
       option: option?.option || "",
 
       values: option?.values?.map((value: any) => ({
-        ...(productForm && { id: value?.id }), // 👈 only in edit
+        ...(productForm && { id: value?.value_id }), // 👈 only in edit
         value: value?.value || "",
 
         pricings: value?.pricings?.map((pricing: any) => ({
-          ...(productForm && { id: pricing?.id }), // 👈 only in edit
+          ...(productForm && { id: pricing?.pricing_id }), // 👈 only in edit
           price: pricing?.price || "",
           starting_range: pricing?.starting_range || "",
           ending: pricing?.ending || "",
@@ -362,7 +362,7 @@ export default function ProductModal({
         ...(productForm ? { updated_by: "vendor" } : { created_by: "vendor" }),
         status: true,
         pricings: data.product.pricings?.map((p: any) => ({
-          ...(productForm && { id: p?.id }),
+          ...(productForm && { id: p?.pricing_id }),
           starting_range: Number(p.starting_range),
           ending: Number(p.ending),
           price: Number(p.price),
