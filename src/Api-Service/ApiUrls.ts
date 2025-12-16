@@ -30,7 +30,7 @@ const updateVendorSiteDetails = `${baseUrl}/vendor-site-details/`
 const updateSelectedAddress = `${baseUrl}/update-selected-address/vendor/`;
 const vendors = `${baseUrl}/vendors/`;
 const vendorSitePolicies = `${baseUrl}/vendor-site-policies/`;
-const coupons = `${baseUrl}/coupons/`
+const coupons = `${baseUrl}/get-coupons-by-vendor/`
 const dtdcDelivery = `${baseUrl}/delivery-partner-data-bulk-pricing-data/dtdc/`
 const refund = `${baseUrl}/initiate_razorpay_refund/`;
 const blog = `${baseUrl}/blog/`;
@@ -44,6 +44,10 @@ const productWithOptionsValuePricing = `${baseUrl}/product-with-options-value-pr
 const allProductOptions = `${baseUrl}/product-with-options-value-pricing/`;
 const productImage=`${baseUrl}/product/`;
 const productPricings =`${baseUrl}/product-with-image-pricing/`;
+const productOption =`${baseUrl}/product-options/`;
+const productValue =`${baseUrl}/product-options-values/`;
+const productOptionPricing=`${baseUrl}/product-options-value-pricing/`;
+
 
 export default {
     multiVendor,
@@ -84,4 +88,7 @@ export default {
     allProductOptions,
     productImage,
     productPricings,
+    productOption,
+    productValue,
+    productOptionPricing,
 };
