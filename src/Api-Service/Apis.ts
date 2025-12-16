@@ -377,13 +377,32 @@ export const updateVendorOtherDetailsApi = async (query: any,payload:any) => {
 
 // DELETE PRODUCT PRICING APIS
 export const deleteProductPricingAPi = async (query: any) => {
-  const formattedQuery = query?.endsWith('/') ? query : `${query}`;
   return axios.delete(
-      `${ApiUrls?.productPricings}${formattedQuery}`
+      `${ApiUrls?.productPricings}${query}`
+  );
+}
+
+// DELETE OPTION APIS
+export const deleteOptionApi = async (query: any) => {
+  return axios.delete(
+      `${ApiUrls?.productOption}${query}`
+  );
+}
+
+// DELETE VALUE APIS 
+export const deleteOptionValueApi = async (query: any) => {
+  return axios.delete(
+      `${ApiUrls?.productValue}${query}`
   );
 }
 
 
+// DELETE OPTION PRICING APIS 
+export const deleteProductOptionPricingAPi = async (query: any) => {
+  return axios.delete(
+      `${ApiUrls?.productOptionPricing}${query}`
+  );
+}
 
 
 
