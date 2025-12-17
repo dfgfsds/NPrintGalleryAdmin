@@ -385,6 +385,7 @@ export default function ProductModal({
 
       if (updateApi) {
         queryClient.invalidateQueries(['getProductData'] as InvalidateQueryFilters);
+        window.location.reload();
         onClose();
         toast.success("Product created successfully!");
       } else {
@@ -409,6 +410,7 @@ export default function ProductModal({
   };
 
   const handleClose = () => {
+    window.location.reload();
     queryClient.invalidateQueries(['getProductData'] as InvalidateQueryFilters);
     onClose();
   }
