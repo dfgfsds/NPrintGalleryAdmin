@@ -483,7 +483,7 @@ console.log(data?.data?.delivery_partner ,data?.data?.status)
 
 
               {/* {data?.data?.status !== 'Delivered' && data?.data?.status !== 'Cancelled/Refunded' && data?.data?.status !== 'Shipment Failed' && data?.data?.status !== 'Cancelled' && data?.data?.status !== 'Failed' && data?.data?.status !== 'Cancellation Requested' && data?.data?.delivery_partner !== 'own_delivery' && ( */}
-              {data?.data?.status === 'Shipped' && data?.data?.status === 'Out For Delivery' && data?.data?.status !== 'Processing' && data?.data?.delivery_partner === 'shiprocket' && (
+              {data?.data?.status === 'Shipped' && data?.data?.status === 'Out For Delivery' && data?.data?.status === 'Processing' && data?.data?.delivery_partner === 'shiprocket' && (
 
                 <>
 
