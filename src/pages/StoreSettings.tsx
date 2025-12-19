@@ -729,7 +729,7 @@ export default function StoreSettings() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Refund and Cancellation Policy
+                  Refund  Policy
                 </label>
                 <textarea
                   rows={6}
@@ -740,6 +740,23 @@ export default function StoreSettings() {
                   }}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   value={getVendorSidePolicesData?.data?.data?.refund_and_cancellation_policy}
+
+                />
+              </div>
+
+               <div>
+                <label className="block text-sm font-medium text-gray-700">
+                Cancellation Policy
+                </label>
+                <textarea
+                  rows={6}
+                  onFocus={(e) => {
+                    setTextAreaModal(true);
+                    setTextAreaValue(e.target.value);
+                    setTextAreaKey('cancellation_policy');
+                  }}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={getVendorSidePolicesData?.data?.data?.cancellation_policy}
 
                 />
               </div>
