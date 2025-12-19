@@ -154,7 +154,7 @@ export default function OrderDetailsModal({ order, onClose, onUpdateStatus }: Or
       setLoadingAction(false);
     }
   };
-console.log(data?.data?.delivery_partner ,data?.data?.status)
+  console.log(data?.data?.delivery_partner, data?.data?.status)
 
   return (
     <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -248,11 +248,11 @@ console.log(data?.data?.delivery_partner ,data?.data?.status)
                         <div>
                           <label className="block text-md mb-2 font-medium text-black">Update Status</label>
                           <select
-                            className="mt-1 block w-auto p-2 rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-auto p-2 rounded-md border-gray-500 border shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             value={data?.data?.status}
                             onChange={(e) => handleUpadteStatus(e.target.value)}
                           >
-                            {["Pending", "Processing", "Shipped", "Delivered", "Cancelled"].map((status) => (
+                            {["Pending", "Shipped", "Cancelled", "Delivered", "Out For Delivery", "Cancelled/Refunded", "Processing"].map((status) => (
                               <option key={status} value={status}>{status}</option>
                             ))}
                           </select>
@@ -318,15 +318,15 @@ console.log(data?.data?.delivery_partner ,data?.data?.status)
                     {/* Items */}
                     <div>
                       <h4 className="font-medium text-sm text-black">Order Items</h4>
-                      <div className="mt-2 divide-y divide-gray-200">
+                      {/* <div className="mt-2 divide-y divide-gray-200">
                         {data?.data?.order_items?.map((item: any) => (
                           <div key={item.id} className="py-3">
 
-                            {/* Product Display */}
+                     
                             <div className="flex justify-between items-center">
                               <div className="flex items-center">
 
-                                {/* 🔹 Product Original Image */}
+                 
                                 {item.product?.image_urls?.length > 0 && (
                                   <img
                                     src={item.product.image_urls[0]}
@@ -357,7 +357,7 @@ console.log(data?.data?.delivery_partner ,data?.data?.status)
                                     alt="Uploaded"
                                   />
 
-                                  {/* Click Download (JavaScript method) */}
+      
                                   <button
                                     type="button"
                                     onClick={async () => {
@@ -394,21 +394,187 @@ console.log(data?.data?.delivery_partner ,data?.data?.status)
                               </div>
                             )}
 
+                          </div>
+                        ))}
+                      </div> */}
 
+                      <div className="mt-2 divide-y divide-gray-200">
+                        {data?.data?.order_items?.map((item: any) => (
+                          <div key={item.id} className="py-4">
 
+                            <div className="flex items-center justify-between gap-4">
 
+                              {/* LEFT SIDE */}
+                              <div className="flex items-start gap-3">
+                                {/* Product Image */}
+                                {item.product?.image_urls?.length > 0 && (
+                                  <img
+                                    src={item.product.image_urls[0]}
+                                    alt="Product"
+                                    className="h-12 w-12 rounded-lg object-cover border"
+                                  />
+                                )}
+
+                                {/* Product Details */}
+                                <div className="text-sm">
+                                  <p className="font-semibold capitalize text-gray-900 leading-tight">
+                                    {item?.product?.name}
+                                  </p>
+
+                                  {/* OPTIONS */}
+                                  {item?.options && Object.keys(item.options).length > 0 && (
+                                    <div className="mt-1 flex flex-wrap gap-2">
+                                      {Object.entries(item.options).map(([key, value]: any) => (
+                                        <span
+                                          key={key}
+                                          className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md capitalize"
+                                        >
+                                          {key.replace(/_/g, " ")} : {value}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* RIGHT SIDE */}
+                              <div className="text-right text-sm">
+                                <p className="text-gray-500">
+                                  ₹{item.price} × {item.quantity}
+                                </p>
+                                <p className="font-semibold text-gray-900 text-base">
+                                  ₹{Number(item.price) * Number(item.quantity)}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* CUSTOMER UPLOADED IMAGE */}
+                            {item?.image_urls?.length > 0 && (
+                              <div className="mt-4">
+                                <p className="text-xs font-semibold text-gray-600 mb-2">
+                                  Customer Uploaded Image
+                                </p>
+
+                                <div className="relative w-20 h-20 group">
+                                  <img
+                                    src={item.image_urls[0]}
+                                    className="w-20 h-20 rounded-lg object-cover border"
+                                    alt="Uploaded"
+                                  />
+
+                                  {/* DOWNLOAD */}
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      try {
+                                        const response = await fetch(item.image_urls[0], { mode: "cors" });
+                                        const blob = await response.blob();
+                                        const link = document.createElement("a");
+                                        link.href = URL.createObjectURL(blob);
+                                        link.download = "customer-uploaded-image";
+                                        link.click();
+                                        URL.revokeObjectURL(link.href);
+                                      } catch (error) {
+                                        console.error("Download failed:", error);
+                                      }
+                                    }}
+                                    className="absolute inset-0 bg-black/60 rounded-lg
+                         flex items-center justify-center
+                         opacity-0 group-hover:opacity-100 transition"
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-6 w-6 text-white"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2
+                     M7 10l5 5m0 0l5-5m-5 5V4"
+                                      />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+                            )}
 
                           </div>
                         ))}
                       </div>
 
+
                     </div>
 
                     {/* Total */}
-                    <div className="border-t pt-4">
+                    {/* <div className="border-t pt-4">
                       <div className="flex justify-between text-base font-medium">
                         <p>Total</p>
                         <p>₹{data?.data?.total_amount}</p>
+                      </div>
+                    </div> */}
+
+                    <div className="border-t pt-4 mt-4 bg-gray-50 p-4 rounded-lg shadow-sm space-y-2">
+                      {/* Subtotal */}
+                      <div className="flex justify-between text-sm md:text-base font-medium text-gray-700">
+                        <p>Subtotal</p>
+                        <p>
+                          ₹
+                          {data?.data?.order_items
+                            ?.reduce(
+                              (acc: number, item: any) => acc + parseFloat(item.price) * item.quantity,
+                              0
+                            )
+                            ?.toFixed(2) || 0}
+                        </p>
+                      </div>
+
+
+
+                      {/* Delivery Charge */}
+                      {data?.data?.delivery_charge && (
+                        <div className="flex justify-between text-sm md:text-base text-gray-600">
+                          <p>Delivery Charge</p>
+                          <p>₹{parseFloat(data?.data?.delivery_charge || "0").toFixed(2)}</p>
+                        </div>
+                      )}
+
+
+                      {/* COD Charge */}
+                      {parseFloat(data?.data?.cod_charges || "0") > 0 && (
+                        <div className="flex justify-between text-sm md:text-base text-gray-600">
+                          <p>COD Charges</p>
+                          <p>₹{parseFloat(data?.data?.cod_charges || "0").toFixed(2)}</p>
+                        </div>
+                      )}
+
+                      {/* Delivery Discount (if available) */}
+                      {parseFloat(data?.data?.delivery_discount || "0") > 0 && (
+                        <div className="flex justify-between text-sm md:text-base text-gray-600">
+                          <p>Delivery Discount</p>
+                          <p className="text-red-500">-₹{data?.data.delivery_discount}</p>
+                        </div>
+                      )}
+                      {/* Discount */}
+                      {data?.data?.discount && data?.data?.discount > 0 && (
+                        <div className="flex justify-between text-sm md:text-base text-gray-600">
+                          <p>Discount</p>
+                          <p className="text-red-500">
+                            -₹{parseFloat(data?.data?.discount || "0").toFixed(2)}
+                          </p>
+                        </div>
+                      )}
+
+
+                      <hr className="my-2 border-gray-300" />
+
+                      {/* Total */}
+                      <div className="flex justify-between text-base md:text-lg font-semibold text-gray-900">
+                        <p>Total</p>
+                        <p>₹{parseFloat(data?.data?.total_amount || "0").toFixed(2)}</p>
                       </div>
                     </div>
 
@@ -483,76 +649,83 @@ console.log(data?.data?.delivery_partner ,data?.data?.status)
 
 
               {/* {data?.data?.status !== 'Delivered' && data?.data?.status !== 'Cancelled/Refunded' && data?.data?.status !== 'Shipment Failed' && data?.data?.status !== 'Cancelled' && data?.data?.status !== 'Failed' && data?.data?.status !== 'Cancellation Requested' && data?.data?.delivery_partner !== 'own_delivery' && ( */}
-              {data?.data?.status === 'Shipped' && data?.data?.status === 'Out For Delivery' && data?.data?.status === 'Processing' && data?.data?.delivery_partner === 'shiprocket' && (
+              {/* {data?.data?.status === 'Shipped' || data?.data?.status === 'Out For Delivery' || data?.data?.status === 'Processing' && data?.data?.delivery_partner === 'shiprocket' && ( */}
+              {(
+                data?.data?.delivery_partner === 'shiprocket' &&
+                (
+                  data?.data?.status === 'Shipped' ||
+                  data?.data?.status === 'Out For Delivery' ||
+                  data?.data?.status === 'Processing'
+                )
+              ) && (
+                  <>
 
-                <>
-
-                  {/* Shiprocket Actions */}
-                  <div className="space-y-2 mt-4">
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      <Button
-                        onClick={() => handleShiprocketAction("manifest")}
-                        disabled={data?.data?.status === 'Pending' || loadingAction}
-                      >
-                        Generate Manifest
-                      </Button>
-                      <Button
-                        onClick={() => handleShiprocketAction("label")}
-                        disabled={data?.data?.status === 'Pending' || loadingAction}
-                      >
-                        Generate Label
-                      </Button>
-                      <Button
-                        onClick={() => handleShiprocketAction("invoice")}
-                        disabled={data?.data?.status === 'Pending' || loadingAction}
-                      >
-                        Generate Invoice
-                      </Button>
+                    {/* Shiprocket Actions */}
+                    <div className="space-y-2 mt-4">
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <Button
+                          onClick={() => handleShiprocketAction("manifest")}
+                          disabled={data?.data?.status === 'Pending' || loadingAction}
+                        >
+                          Generate Manifest
+                        </Button>
+                        <Button
+                          onClick={() => handleShiprocketAction("label")}
+                          disabled={data?.data?.status === 'Pending' || loadingAction}
+                        >
+                          Generate Label
+                        </Button>
+                        <Button
+                          onClick={() => handleShiprocketAction("invoice")}
+                          disabled={data?.data?.status === 'Pending' || loadingAction}
+                        >
+                          Generate Invoice
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Show Links */}
-                  <div className="mt-4">
-                    {pdfLinks.manifest && (
-                      <p>
-                        Manifest:{" "}
-                        <a
-                          href={pdfLinks.manifest}
-                          target="_blank"
-                          className="text-blue-600 underline"
-                        >
-                          Download
-                        </a>
-                      </p>
-                    )}
-                    {pdfLinks.label && (
-                      <p>
-                        Label:{" "}
-                        <a
-                          href={pdfLinks.label}
-                          target="_blank"
-                          className="text-blue-600 underline"
-                        >
-                          Download
-                        </a>
-                      </p>
-                    )}
-                    {pdfLinks.invoice && (
-                      <p>
-                        Invoice:{" "}
-                        <a
-                          href={pdfLinks.invoice}
-                          target="_blank"
-                          className="text-blue-600 underline"
-                        >
-                          Download
-                        </a>
-                      </p>
-                    )}
-                  </div>
+                    {/* Show Links */}
+                    <div className="mt-4">
+                      {pdfLinks.manifest && (
+                        <p>
+                          Manifest:{" "}
+                          <a
+                            href={pdfLinks.manifest}
+                            target="_blank"
+                            className="text-blue-600 underline"
+                          >
+                            Download
+                          </a>
+                        </p>
+                      )}
+                      {pdfLinks.label && (
+                        <p>
+                          Label:{" "}
+                          <a
+                            href={pdfLinks.label}
+                            target="_blank"
+                            className="text-blue-600 underline"
+                          >
+                            Download
+                          </a>
+                        </p>
+                      )}
+                      {pdfLinks.invoice && (
+                        <p>
+                          Invoice:{" "}
+                          <a
+                            href={pdfLinks.invoice}
+                            target="_blank"
+                            className="text-blue-600 underline"
+                          >
+                            Download
+                          </a>
+                        </p>
+                      )}
+                    </div>
 
-                </>
-              )}
+                  </>
+                )}
             </>
           )}
 
