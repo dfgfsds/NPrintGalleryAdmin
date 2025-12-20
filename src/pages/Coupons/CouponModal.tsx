@@ -8,7 +8,7 @@ import Button from '../../components/Button';
 import { postCouponApi, updateCouponApi } from '../../Api-Service/authendication';
 import { InvalidateQueryFilters, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { getAllProductVariantSizeApi, getCategoriesWithSubcategoriesApi, getUserApi } from '../../Api-Service/Apis';
+import { getAllProductOptionsApi, getAllProductVariantSizeApi, getCategoriesWithSubcategoriesApi, getUserApi } from '../../Api-Service/Apis';
 import { toast } from 'react-toastify';
 
 // ---------- Validation Schema ----------
@@ -162,9 +162,14 @@ function CouponModal({ close, editData, setEditData }: any) {
   const isUserSpecific = watch('user_specific');
 
   // ---------- Queries ----------
+  // const productData: any = useQuery({
+  //   queryKey: ['getAllProductVariantSizeData', id],
+  //   queryFn: () => getAllProductVariantSizeApi(`?vendor_id=${id}`),
+  // });
+
   const productData: any = useQuery({
     queryKey: ['getAllProductVariantSizeData', id],
-    queryFn: () => getAllProductVariantSizeApi(`?vendor_id=${id}`),
+    queryFn: () => getAllProductOptionsApi(`?vendor_id=${id}`)
   });
 
   const optionProducts = useMemo(
@@ -310,18 +315,20 @@ function CouponModal({ close, editData, setEditData }: any) {
       if (editData) {
         const updateApi = await updateCouponApi(`${editData?.id}`, payload);
         if (updateApi) {
+          reset();
           close();
-          toast.success('successfully created');
           setEditData('');
-          queryClient.invalidateQueries(['getCouponData'] as unknown as InvalidateQueryFilters);
+          toast.success('successfully created');
+          queryClient.invalidateQueries(['getCouponData'] as InvalidateQueryFilters);
         }
       } else {
         const updateApi = await postCouponApi('', payload);
         if (updateApi) {
+          reset();
           close();
-          toast.success('successfully Edited');
           setEditData('');
-          queryClient.invalidateQueries(['getCouponData'] as unknown as InvalidateQueryFilters);
+          toast.success('successfully Edited');
+          queryClient.invalidateQueries(['getCouponData'] as InvalidateQueryFilters);
         }
       }
     } catch (error: any) {
