@@ -119,7 +119,7 @@ function Coupons({ userId }: any) {
             </div>
 
             {couponModal && (
-                <CouponModal close={() => setCouponModal(!couponModal)}
+                <CouponModal close={() => {setCouponModal(!couponModal),setEditData('')}}
                     editData={editData}
                     userId={userId}
                 />

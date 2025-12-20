@@ -239,6 +239,7 @@ export default function ProductModal({
   useEffect(() => {
     setValue('name', productForm?.name);
     setValue('slug_name', productForm?.slug_name);
+    setValue('hsn', productForm?.hsn);
     setValue('price', productForm?.price);
     setValue('discount', productForm?.discount);
     // setValue('category', productForm?.category);
@@ -331,6 +332,7 @@ export default function ProductModal({
         ...(productForm ? '' : { vendor: id }),
         name: data?.name,
         slug_name: data?.slug_name,
+        hsn: data?.hsn,
         brand_name: data?.brand_name,
         description: data?.description,
         description_2: data?.description_2,
@@ -436,6 +438,9 @@ export default function ProductModal({
               </div>
               <div className='col-span-6 lg:col-span-6'>
                 <Input label="Slug Name" required {...register('slug_name', { required: true })} />
+              </div>
+              <div className='col-span-6 lg:col-span-6'>
+                <Input label="HSN" required {...register('hsn', { required: true })} />
               </div>
               <div className='col-span-12 lg:col-span-12 py-1'>
                 <ImageUpload images={images} product={productForm} onChange={setImages} />

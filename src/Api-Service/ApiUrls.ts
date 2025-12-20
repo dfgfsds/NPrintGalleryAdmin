@@ -47,6 +47,7 @@ const productPricings =`${baseUrl}/product-with-image-pricing/`;
 const productOption =`${baseUrl}/product-options/`;
 const productValue =`${baseUrl}/product-options-values/`;
 const productOptionPricing=`${baseUrl}/product-options-value-pricing/`;
+const couponApi=`${baseUrl}/coupons/`
 
 
 export default {
@@ -91,4 +92,5 @@ export default {
     productOption,
     productValue,
     productOptionPricing,
+    couponApi,
 };
