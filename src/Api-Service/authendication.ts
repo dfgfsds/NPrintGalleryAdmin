@@ -17,7 +17,7 @@ export const postCreateMultiVendorAPi = async (payload:any) => {
   //   COUPON CREATE API
 export const postCouponApi = async (query:any,payload:any) => {
   const formattedQuery = query?.endsWith('/') ? query : `${query}`;
-  return axios.post(`${ApiUrls.coupons}${formattedQuery}`,payload);
+  return axios.post(`${ApiUrls.couponApi}${formattedQuery}`,payload);
 };
 
   //   COUPON GET API
@@ -29,12 +29,12 @@ export const postCouponApi = async (query:any,payload:any) => {
     //   COUPON UPDATE API
     export const updateCouponApi = async (query:any,payload:any) => {
       const formattedQuery = query?.endsWith('/') ? query : `${query}`;
-      return axios.put(`${ApiUrls.coupons}${formattedQuery}`,payload);
+      return axios.put(`${ApiUrls.couponApi}${formattedQuery}`,payload);
     };
     
 // COUPON DELETE API
 export const deleteCouponApi = async (query: any, payload: any) => {
-  return axios.delete(`${ApiUrls.coupons}${query}`, {
+  return axios.delete(`${ApiUrls.couponApi}${query}`, {
     data: payload,
   });
 };
